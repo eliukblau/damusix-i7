@@ -1,0 +1,31 @@
+===============================================================================
+  DREAMBYTES ADVENTURES: AD(M)INISTRADOR (U)NIFICADO DE (S)ON(I)DO EN GLUL(X)
+===============================================================================
+
+  SOBRE LOS ARCHIVOS DE SONIDO QUE SE ADJUNTAN:
+  ---------------------------------------------
+
+  El archivo 'grito.aiff' es un efecto de sonido sampleado en
+  formato Apple AIFF (un celebre grito). Esta preparado para
+  ser reproducido sin ningun cambio en cualquier interprete
+  Glulx que tenga soporte para audio sampleado.
+
+  El archivo 'musica.mod' es una entretenida melodia en formato
+  MOD a 4 canales (modulo musical original de Protracker). Esta
+  melodia esta preparada para poder ser repetida infinitas veces.
+  Se reproducira correctamente en cualquier interprete Glulx que
+  tenga soporte para modulos musicales.
+
+  El archivo 'fanfarria.ogg' es una breve pieza musical con
+  trompetas en sonido sampleado comprimido en formato Ogg Vorbis.
+  Cualquier interprete Glulx moderno que tenga soporte para los
+  archivos Vorbis (es una alternativa libre a MP3) reproducira
+  correctamente este formato tal y como si se tratara de un AIFF
+  comun (despues de todo, ambos formatos son de sonido sampleado.)
+
+  Proporciono estos tres archivos en el caso que no tengas a mano
+  un sonido AIFF u Ogg Vorbis o una melodia MOD para probar junto
+  con la extension Damusix.
+
+  Atte. Eliuk Blau (autor de la extension Damusix).
+  e-Mail: eliukblau (AT) gmail.com

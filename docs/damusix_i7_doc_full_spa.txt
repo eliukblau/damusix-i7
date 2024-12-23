@@ -1,0 +1,552 @@
+---- DOCUMENTATION ----
+
+
+
+Chapter: Introduccion
+
+
+Section: Prologo
+
+La presente documentacion es completamente provisional. Se ha redactado para ser concisa (en lo posible que permite una redaccion rapida), sin dar mayores detalles "esotericos" sobre el funcionamiento de la extension Damusix. Solo se explica la filosofia de funcionamiento del Gestor de Audio y alguna otra informacion necesaria. Tambien se listan y ejemplifican las frases de lenguaje natural mas importantes para manejar las funcionalidades de Damusix. Los ejemplos son precisos y "van al grano", por lo que los programadores no deben esperar encontrar una "solucion completa" a un problema de naturaleza mayor, ni una explicacion "didactica" sobre las funcionalidades tratadas.
+
+ESTA DOCUMENTACION NO DEBE TOMARSE COMO DEFINITIVA. Es solo un "manual tecnico" para el uso de los Betatesters de Damusix. Si tu estas leyendo esto, es porque eres uno de ellos. Muchas Gracias por apoyar el desarrollo de Damusix! =)
+
+Ah, y pido disculpas por lo desordenado de la documentacion. Es mi culpa, porque es un poco dificil explicar algunos conceptos complejos de Damusix de forma breve o con un vocabulario sencillo (por ejemplo, el termino "rutina" no tiene sentido en I7; en su lugar podria ser "rule" o "activity" o "definition", etc. No esta siendo facil para mi adaptar la documentacion ya existente de Damusix I6 a una version aplicable a Damusix I7). Mientras dure el betatesting estare trabajando en la creacion de un documentacion mas ordenada, completa, y en lo posible mucho mas corta y sencilla de seguir. Titanica tarea! Deseenme suerte! =D
+
+	Atte.
+	Eliuk Blau,
+	Autor de la Extension Damusix.
+
+P. S: Aprovecho de dar un especial agradecimiento a mi buen amigo Aaron A. Reed. El se ha encargado de ayudarme con la traduccion de muchas cosas al ingles. De hecho, esta documentacion esta traducida por el, en su version inglesa. Tambien la gran parte de las frases de lenguaje natural de la extension Damusix han sido traducidas o corregidas por el. Su ayuda ha sido inestimable. Por todo lo anterior, muchas gracias, Aaron. =)
+
+
+Section: Acerca de Damusix
+
+Damusix es un potente Administrador Unificado de Sonido en Glulx capaz de gestionar todas las funciones necesarias para la reproduccion de musica y sonidos mediante una forma de uso simple y sencilla.
+
+El Gestor Avanzado de Audio de Damusix implementa 10 canales "normales" para la reproduccion de sonidos con CONTROL TOTAL (tocarlos, detenerlos, volumen individual, repeticion, etc.); 10 canales "virtuales" para una reproduccion de sonidos mas limitada, pero con la ventaja de no tener que "asignar un canal" previamente a un sonido concreto, permitiendo asi que varios sonidos puedan tocarse al mismo tiempo sin interrumpirse mutuamente ni tener que "asignarlos" cada vez a un canal "normal" (el Gestor asignara los canales automaticamente); y 1 canal especialmente dedicado al trabajo con la "lista de reproduccion de sonidos" que facilita Damusix. Esta "lista" tiene espacio suficiente para 10 sonidos que luego tocara en el orden en que hayan sido agregados, uno por uno. La "lista" puede ser util para reproducir cadenas de sonidos.
+
+Adicionalmente, los sonidos asignados a canales "normales" pueden generar eventos de notificacion Glk cuando terminen de reproducirse. Estas notificaciones pueden ser "capturadas" por el programador y ser utilizadas como mejor le parezca ocupando para ello el mecanismo de reglas que la extension Glulx Entry Points pone a su disposicion.
+
+La extension Damusix tambien permite realizar efectos de FadeIn y FadeOut con los sonidos asignados a un canal "normal". Estos efectos de Fade pueden ser o no en "tiempo-real". Un Fade en "tiempo-real" transcurrira de fondo mientras el juego corre normalmente. Un Fade en "tiempo-no-real" hara primero el efecto y una vez haya finalizado, recien entonces devolvera el control de la ejecucion al codigo a continuacion. Los Fades en "tiempo real" pueden ser abortados en cualquier momento si el programador lo necesita.
+
+Resumen de Caracteristicas de la extension Damusix:
+
+	- 10 Canales "Normales" con Control Total del Audio
+	- 10 Canales "Virtuales" para sonidos sin "canal asignado"
+	- Lista de Reproduccion de Sonidos (con espacio para 10 items)
+	- Control de Volumen Global del Gestor
+	- Control de Volumen Individual de cada Sonido
+	- Utilizacion con Abstraccion por Sonidos o por Canales
+	- Efectos de FadeIn y FadeOut en "tiempo-real/tiempo-no-real"
+	- Activar/Desactivar el Audio limpiamente (sin cambiar volumen)
+	- Comprobacion Automatica de Soporte de Audio a nivel de Glk
+	- Mecanismo de "Proteccion de Sonidos" ante UNDO/RESTORE
+	- Muchas caracteristicas mas... =D
+
+Damusix requiere para funcionar correctamente:
+
+	- Sistema de Autoria Inform 7 (version 10.1 o superior)
+	- Extension Glulx Entry Points (version 10.0 o superior)
+
+
+Section: License
+
+If you modify the Damusix extension, I would be grateful if you send me the source code by e-Mail.
+
+Copyright (c) 2008, 2009, 2024 Nicolas Merino Quezada (aka Eliuk Blau).
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	WARNING:
+	THIS COPY OF THE DAMUSIX EXTENSION IS ONLY FOR BETATESTERS. YOU CAN NOT REDISTRIBUTE IT AND/OR MODIFY IT WITHOUT THE EXPLICIT PERMISSION OF THE AUTOR.
+
+
+
+Chapter: Usando Damusix
+
+
+Section: Antes de Comenzar (LEER, IMPORTANTE!)
+
+A la fecha, el IDE de Inform 7 no cuenta con una implementacion del interprete Glulx lo suficientemente robusta como para testear adecuadamente los juegos que usan capacidades multimedia. Esto es igual para las tres plataformas soportadas: Windows, Linux y MacOSX; aunque en Windows si se puede usar Damusix con la facilidad de probar el juego en el propio interprete incluido en el IDE (la implementacion del interprete Glulx en Windows esta lo bastante completa como para ser capaz de ejecutar todas las funcionalidades de Damusix, aunque es posible que los efectos de Fade en "tiempo-real" vayan mas lento de lo normal... tambien tiene problemas deteniendo o silenciando algunos sonidos, pero esto no afecta al comportamiento de Damusix). De todos modos, se aconseja a los programadores que compilen sus juegos y los prueben en un interprete externo a fin obtener realmente resultados confiables. Para Windows yo recomiendo Windows Glulxe o Gargoyle; para Linux, Gargoyle; y para MacOSX, Spatterlight. Tengo noticias de que Damusix funciona sin problemas en estos tres interpretes.
+
+Esperemos que, en el futuro, la implementacion de los interpretes integrados en el IDE sea mas completa en los aspectos multimedia para asi poder probar relajadamente nuestros juegos dentro del mismo IDE a medida que los vamos escribiendo. =)
+
+
+Section: Incluyendo la Extension en el Juego
+
+Simplemente debemos escribir:
+
+	*: Include Damusix Sound Manager by Eliuk Blau.
+
+Con esto ya estara incluida la extension Damusix en nuestro juego y el Gestor de Audio se inicializara automaticamente. No necesitamos escribir nada mas. Por supuesto, ahora tenemos que aprender como manejar este Gestor. Lo trataremos en la seccion a continuacion.
+
+
+Section: Entendiendo el Concepto de "Canal de Audio"
+
+Todo sonido que vaya a reproducirse mediante la API Glk de Glulx debe "sonar" por algun canal de audio. Un canal puede compararse con un "altavoz": cada sonido que se reproduzca debe "sonar" por algun "altavoz"; es decir, todo sonido debe siempre tocarse en algun "canal de audio" previamente abierto para ello.
+
+Damusix abre y administra automaticamente 21 canales de audio. De todos estos, los primeros 10 canales son considerados por el Gestor como "canales normales" y permitira realizar en ellos todo tipo de trabajos posibles con el audio que la API Glk implementa. Los siguientes 10 canales son considerados por el Gestor como "canales virtuales" y tienen una utilidad muy especifica y mas limitada que los canales normales (mas adelante se explicara esta diferencia). El ultimo canal gestionado por Damusix, el 21, existe solamente para la funcionalidad de la "lista de reproduccion de sonidos" (tambien se explicara su utilidad mas adelante).
+
+
+Section: Comprobando si el Interprete Soporta Audio
+
+Damusix comprueba automaticamente si el interprete en el que se ejecuta nuestro juego tiene soporte completo de audio o si no lo tiene. "Soporte completo de audio" significa para Damusix "la posibilidad de reproducir archivos de audio en formato MOD y en formato sampleado AIFF u Ogg Vorbis".
+
+Si la comprobacion automatica de Damusix indica que el interprete no tiene soporte completo de audio, el Gestor inhabilitara su funcionamiento interno. Lo anterior quiere decir que el juego funcionara normalmente, pero sin reproducir sonidos. Esto se ha programado asi para darle al Gestor un comportamiento "inteligente": si el audio no esta del todo disponible, las funcionalidades de Damusix que utilicemos simplemente no haran nada y ya (pero no provocaran un error).
+
+Con independencia de la comprobacion automatica de Damusix, nosotros tambien podemos hacer una comprobacion "aparte" si la necesitamos para nuestros propios fines (por ejemplo: para mostrar alguna advertencia si el audio no esta soportado). Damusix facilita un par de frases para este proposito:
+
+	if full audio is supported...
+	if full audio is unsupported...
+
+Ejemplo:
+
+	*: if full audio is unsupported:
+		say "WARNING: Your interpreter does not completely support audio!".
+
+
+Section: Trabajando con Sonidos "Gestionados"
+
+La extension Damusix implementa un completo "marco de trabajo" para el manejo del audio en Glulx, lo suficientemente potente como para hacer desde las cosas mas basicas, por ejemplo: averiguar el volumen de reproduccion de un sonido o determinar si esta sonando de fondo en algun momento concreto; hasta otras mucho mas complejas, como la capacidad de realizar llamativos efectos de Fade en "tiempo-real". Para lograr estos objetivos, el Gestor de Audio posee un kernel (un nucleo) que actua segun los distintos estados y valores asociados de cada sonido que este siendo "gestionado". Por ejemplo, el kernel puede tocar o detener sonidos que hayan cambiado su "estado de reproduccion", o puede informarnos sobre el volumen y el modo de repeticion actuales de un determinado sonido.
+
+Por otro lado, tambien es el propio Gestor de Damusix el que se encarga de cuidar de la estabilidad del Sistema de Audio. Asi, el Gestor hara todo el "trabajo feo", por ejemplo: actualizar los sonidos luego de un comando UNDO, detener los sonidos actuales al momento de cargar una partida y comenzar a tocar la musica que estaba oyendose en el instante en que la partida fue guardada, junto con recuperar los distintos valores de "volumen" y "repeticion" de todos los sonidos gestionados... y asi otros trabajos por el estilo. Damusix pone a nuestra disposicion todos estos beneficios.
+
+Para que Damusix pueda gestionar un sonido, este debe ser "asignado" a uno de los 10 canales normales que el Gestor habilita para ello. Llamamos a estos canales como "normales" por ningun motivo especial mas que para diferenciarlos de los canales "virtuales". Podemos trabajar directamente solo con los canales normales, asi que de ahora en adelante nos referiremos a ellos simplemente como "los canales".
+
+Cuando se asigna un sonido a un canal se "asocian" a este sonido una serie de datos que describen algunos aspectos de su comportamiento. Estos datos, como se menciono antes, pueden ser su volumen inicial, las repeticiones, su estado de reproduccion, etcetera. De esta manera, el Gestor de Audio "reconocera" el sonido asignado y sabra como debe trabajar con el.
+
+Si queremos ocupar tal o cual sonido, no es necesario que este asignado a un canal en todo momento. Simplemente debe estar asignado ANTES que el Gestor necesite trabajar con aquel sonido. Asi, por ejemplo, si tenemos 10 sonidos no es necesario que les asignemos canales a todos desde el principio. Solo debemos procurar que antes de comenzar a trabajar con cualquiera de ellos, nuestro sonido elegido tenga previamente un canal asignado.
+
+Los canales pueden asignarse en cualquier instante, asi que si tenemos pocos sonidos podemos asignarles un canal a cada uno desde el mismo inicio del juego, por ejemplo en la regla "When play begins". Y si, por el contrario, tenemos muchos sonidos, quizas lo mejor sea irles asignando un canal a medida que lo vayan necesitando.
+
+Para que un sonido comience a ser gestionado por Damusix tenemos que asignarlo a un canal, indicando su volumen inicial y la cantidad de repeticiones que tendra:
+
+	*: assign the Sound of Beep to channel 1 with 100% volume and 2 repetitions
+
+En este punto tenemos que detenernos un poco para explicar con algo mas de detalle cada uno de los datos incluidos en esta frase...
+
+* SONIDO: Es el sonido al que le vamos a asignar un canal. Debe ser cualquier "sound-name" (archivo de sonido) declarado previamente en el juego.
+
+* CANAL: Es el numero del canal que vamos a asignar. Los canales son 10, pero siempre se cuentan del 0 al 9.
+
+* VOLUMEN: Representa el porcentaje de volumen que se le asociara inicialmente al sonido. En Damusix el volumen de los sonidos siempre se mide en porcentajes. El valor minimo es 0% y el maximo 100%. Cada sonido puede tener su propio volumen, pero el Gestor tambien posee un "Volumen Global" que usara, si asi lo deseamos, para todos los sonidos gestionados. Si cambiamos el Volumen Global, el Gestor tambien cambiara el volumen de todos los sonidos al mismo valor que tiene el nuevo Volumen Global. Esto es muy practico si necesitamos modificar de pronto el volumen de todos los sonidos. Por otro lado, el Volumen Global tambien se usa como valor por defecto y algunas rutinas pueden ocuparlo para establecer el volumen de un sonido si no se les pasa un porcentaje valido. (NOTA: El Volumen Global siempre vale 100% al comienzo de la ejecucion del juego. Luego este valor puede ser cambiado. Si una funcionalidad de Damusix utiliza el Volumen Global, siempre tomara su valor establecido actualmente.)
+
+Para que un sonido tenga un volumen inicial igual al Volumen Global actual, debe usarse una frase como la siguiente:
+
+	assign the Sound of Beep to channel 1 with global volume and 2 repetitions
+
+* REPETICION: La cantidad de veces que debera repetirse el sonido cuando se reproduzca. Debe ser un valor mayor a cero,  porque debe sonar al menos 1 vez, por supuesto.
+
+Por otro lado, tal vez necesitemos que el sonido se repita infinitamente, sobre todo si lo estamos ocupando como musica de fondo. Para ello simplemente debemos omitir el dato de repeticion y en su lugar incluir la opcion especial "endless loop", quedando la frase de la siguiente manera:
+
+	*: assign the Sound of Beep to channel 1 with 100% volume, endless loop
+
+En una asignacion, los datos de volumen y repeticiones pueden ser omitidos. En este caso, Damusix ocupara un valor por defecto para ellos. Si se omite el volumen, se ocupara el Volume Global actual; y si se omiten las repeticiones, se usara 1 repeticion.
+
+Como la frase de asignacion es un poco larga, Damusix permite unas cuantas variantes mas cortas que la hacen muy flexible y en las que podemos indicar o no los datos de volumen y repeticion. He aqui varios ejemplos...
+
+- Si queremos simplemente asignar rapidamente un sonido, y que se ocupen los datos de volumen y repeticion por defecto:
+
+	assign the Sound of Beep to channel 1
+
+- Si queremos solo indicar el volumen (sea un porcentaje explicito o el Volumen Global actual) y que la repeticion sea el valor por defecto:
+
+	assign the Sound of Beep to channel 1 with 100% volume
+	assign the Sound of Beep to channel 1 with global volume
+
+- Si queremos solo indicar la repeticion (sea una cantidad concreta o repeticiones infinitas) y que el volumen sea el valor por defecto:
+
+	assign the Sound of Beep to channel 1 with 2 repetitions
+	assign the Sound of Beep to channel 1, endless loop
+
+- Incluso hay formas todavia mas cortas... =)
+
+... si indicamos un porcentaje de volumen explicito, podemos omitir la palabra "volume" para que quede mas corto (esto mismo se aplica para todas las frases de Damusix en las que se pueda indicar un porcentaje de volumen explicito):
+
+	assign the Sound of Beep to channel 1 with 100% volume
+
+	... podemos cambiarla por...
+
+	assign the Sound of Beep to channel 1 with 100%
+
+... para indicar que se use el Volumen Global actual lo indicamos con "global volume" como ya se mostro en los ejemplo anteriores, pero tambien podemos sencillamente omitir las palabras "global volume" para que quede mas corto ("global volume" es simplemente una forma larga destinada a los usuarios que gustan de frases "verbosas", jejejeje!):
+
+	assign the Sound of Beep to channel 1 with global volume
+
+	... la frase anterior es totalmente equivalente esta otra...
+
+	assign the Sound of Beep to channel 1
+
+	... simplemente que esta ultima es mucho mas corta. =)
+
+... incluso podemos hacer combinaciones. En el siguiente ejemplo se omite "volume" porque el porcentaje se indica explicitamente; y ademas se usan repeticiones infinitas, por lo que cambiamos "with X repetitions" por la opcion especial "endless loop":
+
+	assign the Sound of Beep to channel 1 with 50%, endless loop
+
+Como podemos ver, la frase de asignacion es impresionantemente flexible. Y se acomoda a todos los gustos. =)
+
+	UNA NOTA SOBRE EL VOLUMEN: Damusix usa un nuevo "kind" para guardar porcentajes de volumen, llamado "sound-volume". Si necesitamos que una variable guarde un valor de volumen, debemos declararla de ese mismo "kind".
+
+	Ejemplo:
+		TV Volume is a sound-volume that varies.
+
+Ademas de todo lo anterior, hay algo muy importante que debemos tener presente: CADA SONIDO SOLO PUEDE TENER 1 CANAL ASIGNADO. Damusix no funcionara correctamente si un sonido tiene mas de un canal asignado. Por cuestiones tecnicas que no se explicaran por ahora, un sonido concreto puede estar asignado unicamente a 1 canal por vez. Si necesitamos que un sonido se reproduzca muchas veces "mezclandose consigo mismo" (NOTA AARON: "overlapping"?) podemos ocupar la funcionalidad de "reproduccion virtual" que se detallara mas adelante.
+
+La asignacion de canales es un proceso muy sencillo y totalmente trivial. Pero era necesario explicar con detalle cada uno de los datos y variantes de la frase de asignacion para que se entienda correctamente la forma en que el Gestor maneja cada sonido junto con sus datos asociados (volumen y repeticiones).
+
+Una vez que un sonido tiene su canal asignado, entonces ya podemos comenzar a trabajar con el. El trabajo mas "evidente" es, por supuesto, reproducir el sonido. Vamos a examinar ahora un ejemplo para que pongamos en practica, de una buena vez, todo lo que se ha explicado hasta ahora. =)
+
+
+Section: Reproduciendo Sonidos Gestionados
+
+En un juego Glulx cargado a la multimedia, lo habitual sera tener unas cuantas musicas de fondo (para las localidades, sean melodias o sonidos ambientales) y otra buena cantidad de efectos de sonido (que se toquen ante una determinada accion o al examinar algun objeto).
+
+Supongamos que tenemos en nuestro juego una musica de fondo llamada "Sound of Music" y un efecto de sonido llamado "Sound of Beep". Como son apenas dos, les asignaremos inmediatamente sus correspondientes canales en la regla "When play begins" para ahorrarnos trabajo. Ademas, lanzaremos la reproduccion de la musica de fondo tambien al comienzo del juego.
+
+	(Para saber como incluir archivos de sonido, remitirse a la seccion 21.7 del manual de Inform 7)
+
+El codigo para conseguir todo lo expuesto seria el siguiente:
+
+	*: "Primeros Pasos con Damusix"
+
+	Include Damusix Sound Manager by Eliuk Blau.
+
+	Sound of Music is the file "music.ogg".
+	Sound of Beep is the file "beep.ogg".
+
+	When play begins:
+		assign the sound of Music to channel 0 with global volume, endless loop;
+		assign the sound of Beep to channel 1 with 100% volume;
+		dplay the sound of Music;
+		dplay the sound of Beep.
+
+	Musical Zone is a room. "Damusix version: [damusix-version]."
+
+La frase "assign the sound of Music to channel 0 with global volume, endless loop" asignara el sonido "Sound of Music" al canal numero 0, aplicandole el porcentaje de Volumen Global actual y repeticiones infinitas.
+
+La frase "assign the sound of Beep to channel 1 with 100% volume" hara lo mismo que la anterior, salvo que aqui el sonido es "Sound of Beep" y se asignara al canal numero 1, aplicandole un porcentaje especifico de volumen del 100%. Ademas, por omision del dato de repeticiones, se asume 1 repeticion para este sonido (se tocara una sola vez).
+
+En este punto seria interesante hacer una nueva observacion especial sobre la utilidad del Volumen Global:
+
+En la asignacion de "Sound of Music" usamos el Volumen Global actual. En cambio, en la asignacion de "Sound of Beep" usamos un porcentaje especifico de volumen, concretamente 100%. Al momento de la ejecucion del juego ambos sonidos tendran 100% de volumen. Cual es entonces la diferencia?...
+
+Es muy sencillo: ya sabemos que el Volumen Global siempre vale 100% al inicio de la ejecucion del juego, por lo tanto asignar "Sound of Music" con volumen global significa que el Gestor asociara a este sonido un volumen de 100% (porque estara tomando el valor actual del Volumen Global al momento de la asignacion, y este vale 100% ya que hasta ahora no lo hemos cambiado). Todo esto seria muy distinto si, por ejemplo, antes de asignar "Sound of Music" hubieramos cambiado el valor del Volumen Global a 50% (mas adelante veremos como hacer esto), entonces el volumen asociado a "Sound of Music" ya no seria 100%, sino 50%. En cambio, para "Sound of Beep" el volumen asociado siempre sera 100%, incluso si el Volumen Global ha sido modificado antes. Siempre se le asociara un valor para el volumen del 100% porque asi lo hemos indicado explicitamente en la asignacion de aquel sonido.
+
+La frase "dplay the sound of Music" se encargara de iniciar la reproduccion de la musica de fondo (notar que es "dplay", por "Damusix play"). Como ya se menciono, una vez que hemos asignado los sonidos ya no tenemos que preocuparnos de nada mas. Para nuestros fines, esta frase simplemente comenzara a tocar el sonido (previamente asignado) que le indiquemos. Y sera el propio Gestor de Damusix el que se encargara de "consultar" todos los datos "asociados" al sonido "Sound of Music" y ocuparlos para establecer su volumen de reproduccion y la cantidad de veces que se repetira. Ya podemos darnos cuenta de la ventaja que supone "asignar" los sonidos, porque una vez que lo hemos hecho ya no tenemos que preocuparnos de nada mas: simplemente de trabajar con ellos. =D
+
+Adicionalmente, al reproducir un sonido tal vez nos interese que genere un "evento de notificacion" para avisarnos cuando termine de sonar. Esto es una funcionalidad especial de la API Glk de Glulx y podemos aprovecharla mediante la extension Glulx Entry Points. Para que un sonido notifique cuando haya terminado, podemos especificar la siguiente opcion:
+
+	dplay the sound of Music, notifying when finished
+
+... esto hara que cuando "Sound of Music" termine natural de sonar (cuando llegue efectivamente al final... no si es detenida antes, artificialmente) se genere una notificacion. Esta notificacion podemos capturarla y trabajar con ella mediante el mecanismo que la extension Glulx Entry Points facilita. No se explicara aqui porque escapa a los propositos de esta documentacion provisional.
+
+Hay unas cuantas frases utiles mas:
+
+- Para detener la reproduccion de un sonido...
+
+	dstop the sound of Beep
+
+- Para cambiar las repeticiones de un sonido...
+
+	change the repetition count of the sound of Beep to 3
+	change the repetition count of the sound of Beep to endless loop
+
+- Para cambiar el volumen de un sonido...
+
+	change the volume of the sound of Beep to 50%
+	change the volume of the sound of Beep to global volume
+
+Y el Gestor de Damusix tambien dispone de frase especial que en algunas determinadas circunstancias puede resultarnos util:
+
+	free the channel of the sound of Beep
+
+Esta frase liberara el canal que se le ha asignado previamente a "sound of Beep". Esto involucra eliminar la asignacion entre el sonido y su canal, y detener dicho sonido. Usualmente no necesitaremos liberar algun canal, pero esta funcionalidad si puede sernos util en el siguiente caso: por ejemplo, si intentamos tocar un sonido que todavia no esta asignado a ningun canal (no esta gestionado), dicho sonido no podra ser reproducido, pero Damusix tampoco generara un error. Entonces, esta es una manera simple de hacer que en un determinado momento un sonido concreto ya no se pueda reproducir mas, incluso si en el codigo de nuestro juego aun lo referenciamos o tratamos de tocarlo. (Por ejemplo, imaginemos que tenemos un sonido de "beep" que se toca en cada turno de juego. Si en algun momento deseamos que el "beep" ya no suene mas, pero no queremos liarnos haciendo comprobaciones condicionales y por el estilo, pues simplemente liberaremos el canal asignado a "sound of Beep" y listo. Las siguientes veces que se intente tocar dicho sonido no tendran ningun efecto puesto que ya no esta siendo gestionado por Damusix y, en consecuencia, el Gestor simplemente omitira cualquier accion sobre aquel sonido. Damusix siempre ignora cualquier trabajo con sonidos "no gestionados". Las unicas DOS EXCEPCIONES a esto son 1) la funcionalidad de "reproduccion virtual" y 2) la funcionalidad del "playlist" de Damusix. Ambas excepciones las estudiaremos a continuacion.)
+
+
+Section: "Reproduccion Virtual" de Sonidos
+
+Ocasionalmente necesitaremos tocar un sonido incidental o de poca importancia como para asignarle un canal propio. Para estos casos es notablemente util la funcionalidad que reproduce sonidos en los "canales virtuales" de Damusix. El programador nunca podra trabajar directamente con los canales virtuales; estos canales existen exclusivamente para permitir la reproduccion virtual de sonidos, en otras palabras: tocar sonidos con la libertad de "no tener que asignarles previamente ningun canal". Los sonidos lanzados en los canales virtuales no se interrumpiran unos a otros, asi que podemos tocar un mismo sonido varias veces al mismo tiempo, provocando que "se mezcle consigo mismo". Hay un limite, por supuesto, para esta "polifonia virtual": existen 10 canales virtuales, por lo que podran sonar 10 sonidos "mezclados entre si" al mismo tiempo. Los canales virtuales se asignan automaticamente y de forma rotativa: esto quiere decir que si se llega al ultimo de los 10 canales, el siguiente sonido lanzado sera asignado al primer canal virtual, deteniendo cualquier sonido previamente asignado a ese canal si aun estuviera reproduciendose. Para "reproducir virtualmente" cualquier sonido se debe usar una frase como la siguiente:
+
+	vplay the sound of Beep
+
+Eso es todo, no necesitamos escribir nada mas (notar que es "vplay", por "virtual play").
+
+La frase de reproduccion virtual tambien acepta indicar explicitamente el volumen con el que se reproducira el sonido. Este volumen puede ser un cualquier porcentaje de volumen valido o el Volumen Global actual del Gestor...
+
+	vplay the sound of Beep with 50% volume
+	vplay the sound of Beep with global volume
+
+Cuando no indicamos un volumen explicito, la reproduccion virtual usara un "volumen comun" para todos los canales virtuales. Los canales virtuales son considerados por Damusix como un solo canal, y como todo canal, puede tener un volumen independiente a los demas. Este es el "volumen comun" y es el volumen que se usara por defecto cuando no se indica ningun volumen explicito. Se debe notar que el volumen comun de los canales virtuales no es el mismo que el Volumen Global del Gestor, aunque usualmente estaran sincronizados con los mismos valores (salvo cuando el programador cambie directamente el volumen para los canales virtuales, ver "frases de Damusix" en la pagina "Index>Phrases").
+
+El Gestor de Damusix no puede "gestionar" todos los aspectos de un sonido lanzado en un canal virtual, asi que existen unas cuantas restricciones en su uso:
+
+	1) los sonidos solo se tocaran 1 sola vez
+
+	2) los sonidos no podran generar eventos de notificacion cuando hayan acabado de reproducirse
+
+	3) el resto de funcionalidades que se pueden usar en los canales normales no pueden ser aplicadas en una "reproduccion virtual"
+
+
+Section: Usando el Playlist de Damusix
+
+Otra funcionalidad interesante de Damusix es su "playlist". Imaginemos que hemos juntado algunos sonidos para representar el ataque con canyon a un barco pirata y su posterior hundimiento. Asi, por ejemplo, tendriamos un sonido para la "mecha encendida consumiendose", luego otro para el "estallido del canyon" y uno mas para el "hundimiento del barco enemigo". Si quisieramos tocar todos estos sonidos en unidad, lo mas natural seria considerarlos como una "lista de sonidos" que deben reproducirse en un orden especifico, uno a uno.
+
+Para estos fines, Damusix implementa un playlist (una "lista de reproduccion de sonidos", en espanyol). Este playlist es muy facil de utilizar. Ademas, no es relevante que los sonidos agregados a la lista esten siendo gestionados por Damusix (es decir, no importa si tienen o no canal asignado).
+
+Vamos con el ejemplo del barquito zozobrado para mostrar el modo en que se usa la lista:
+
+	*: "El Barco Zozobrado"
+
+	Include Damusix Sound Manager by Eliuk Blau.
+
+	Sound of Mecha is the file "mecha.ogg".              [POR FAVOR TRADUCE ESTE NOMBRE, AARON]
+	Sound of Estallido is the file "boom.ogg".           [POR FAVOR TRADUCE ESTE NOMBRE, AARON]
+	Sound of Hundimiento is the file "hundimiento.ogg".  [POR FAVOR TRADUCE ESTE NOMBRE, AARON]
+
+	When play begins:
+		add the sound of Mecha to the playlist with a time of 5000 ms;
+		add the sound of Estallido to the playlist with a time of 1000 ms;
+		add the sound of Estallido to the playlist with a time of 1000 ms;
+		add the sound of Hundimiento to the playlist with a time of 3500 ms;
+		dplay the playlist.
+
+	Blast Zone is a room. "Oh, el barco fue atacado y se esta hundiendo..."
+
+Cada una de las cuatro frases "add..." agregara un sonido a la lista de reproduccion. En el playlist, el orden de dichos sonidos es el mismo en el que van siendo agregados y se tocaran posteriormente en aquel mismo orden. Ademas, debe indicarse la duracion de cada sonido, expresada en milisegundos. Indicar la duracion del sonido es obligatorio y necesario para que la frase que se encarga de "reproducir el playlist" sepa cuanto tiempo debe esperar antes de comenzar a tocar el siguiente sonido de la lista.
+
+Ahora ya hemos "creado el playlist" con un total de cuatro sonidos. Hay espacio para 10 elementos en el playlist: 10 sonidos. Si el playlist esta completo e intentamos agregar mas sonidos, no pasara nada: no fallara, pero simplemente no se agregara ningun nuevo sonido (compilando en modo DEBUG se nos informara con un mensaje apropiado sobre esta situacion, si ocurriera).
+
+La frase "dplay the playlist" tocara el playlist previamente creado, reproduciendo los sonidos en el orden en que fueron agregados y esperando el tiempo de duracion indicado para cada uno antes de tocar el siguiente sonido de la lista. Cuando se acaben de tocar todos los sonidos, entonces se "limpiara el contenido del playlist" automaticamente, dejandolo vacio y preparado para que se puedan agregar nuevos sonidos mas adelante. Si intentamos reproducir el playlist y en ese momento  esta vacio, entonces no ocurrira nada. No se producira un error, simplemente no se tocara ningun sonido. La frase para tocar el playlist, al igual que la frase de reproduccion virtual, acepta indicar explicitamente el volumen con el que se reproducira el sonido. Este volumen puede ser un cualquier porcentaje de volumen valido o el Volumen Global actual del Gestor...
+
+	dplay the playlist with with 50% volume
+	dplay the playlist with global volume
+
+Cuando no indicamos un volumen explicito, el playlist se reproducira con un "volumen comun" para todos los sonidos en la lista. Como el playlist usa su propio canal para tocar los sonidos, puede tambien tener un volumen independiente a los demas canales. Este es el "volumen comun" y es el volumen que se usara por defecto cuando no se indica ningun volumen explicito. Se debe notar que el volumen comun del playlist no es el mismo que el Volumen Global del Gestor, aunque usualmente estaran sincronizados con los mismos valores (salvo cuando el programador cambie directamente el volumen del playlist, ver "frases de Damusix" en la pagina "Index>Phrases").
+
+Hay otra frase que puede resultarnos util al ocupar el playlist:
+
+	clear the playlist
+
+Esta frase limpiara el contenido actual del playlist. Esto es util, por ejemplo, si agregamos unos cuantos sonidos al playlist y luego nos arrepentimos de tocarlo. Si queremos agregar un nuevo conjunto de sonidos, tendremos primero que "limpiar el contenido previo" del playlist. De otro modo, los nuevos sonidos se agregaran despues de los primeros, que nunca tocamos. Esto sucede porque el playlist solo se limpia una vez que es reproducido y si no lo hacemos, tendremos que limpiarlo nosotros mismos para obtener un nuevo playlist vacio, si lo necesitaramos.
+
+
+Section: Activando y Desactivando la Salida de Audio
+
+El Gestor de Damusix puede activar o desactivar (NOTA AARON: enable/disable) la Salida de Audio de manera "limpia" (nota: los valores de volumen no son alterados en ningun caso, por eso se llama "desactivacion limpia"). De esta manera, lo que el Gestor hace es cambiar el "modo de salida de audio" de Damusix. El kernel tomara cuenta del cambio y si la salida de audio esta "activada", permitira la reproduccion normal de los sonidos gestionados; por el contrario, si la salida de audio esta desactivada, el kernel impedira de manera "limpia" la reproduccion de cualquier sonido gestionado.
+
+Si el audio esta desactivado, todas las frases para controlar el Gestor de Damusix seguiran funcionando normalmente, pero ya no se reproduciran sonidos. Todo funcionara tal y como si el audio estuviera activado, pero ningun sonido gestionado se tocara realmente.
+
+Este sistema es muy interesante porque permite que cualquier cambio que se haga en los sonidos gestionados por Damusix sea efectivo, incluso si no escuchamos nada. Por ejemplo, imaginemos que tenemos una musica de fondo que actualmente esta sonando. Si desactivamos el audio, la musica dejara de sonar; sin embargo, para el kernel de Damusix, la musica sigue en reproduccion, solamente que el audio esta desactivado. Cuando activemos el audio de nuevo, la musica volvera a sonar automaticamente sin que tengamos que hacer nada mas. Otro ejemplo: la musica de fondo esta sonando con volumen del 100% y entonces desactivamos el audio. Ahora cambiamos el volumen de la musica al 50% y activamos nuevamente la salida de audio. La musica volvera a sonar, pero esta vez con 50% de volumen...
+
+Es mas, incluso podriamos estar aplicando un efecto de Fade en "tiempo-real" con el audio desactivado y el efecto realmente estaria ejecutandose aunque no escuchemos nada. Si activamos el audio a la mitad del Fade, podriamos oir el efecto desde la mitad hasta el final. =D (Trataremos los efectos de Fade en "tiempo-real" y "tiempo-no-real" mas adelante.)
+
+Cuando el audio de Damusix esta desactivado, todo funciona normalmente, solo que los sonidos gestionados ya no sonaran. Lo anterior es realmente muy util, puesto que nos permite prescindir de lineas de codigo de comprobacion para saber si acaso debemos tocar un sonido dependiendo de si el audio esta activado o no en nuestro juego. Si esta desactivado, una frase como "dplay the sound of Beep", por ejemplo, funcionara normalmente pero no tocara nada.
+
+Estas son las dos frases para controlar la salida de audio de Damusix:
+
+	enable audio
+	disable audio
+
+Ademas, tambien podemos comprobar el estado actual de la salida de audio de Damusix...
+
+	if audio is enabled...
+	if audio is disabled...
+
+
+Section: Otras Rutinas Utiles del Gestor
+
+Para cambiar el porcentaje de Volumen Global del Gestor de Damusix:
+
+	change the global volume to 50%
+
+... el cambio se aplicara a todos los sonidos gestionados, al volumen comun de los canales virtuales y al volumen comun de la lista de reproduccion de sonidos; vale decir, absolutamente todos los volumenes seran establecidos al valor del nuevo Volumen Global. Aqui no se permite algo como "change the global volume to global volume" (eso no tiene sentido en esta frase).
+
+Para detener la reproduccion de todos los sonidos:
+
+	dstop all sounds
+
+... esto hara que todos los sonidos sean detenidos sin excepcion: todos los sonidos gestionados, todos los sonidos en reproduccion virtual y, por seguridad, tambien se detendra el canal del playlist.
+
+Para detener la reproduccion en los canales extra de Damusix:
+
+	dstop the extra channels
+
+... esto detendra la reproduccion en todos los canales virtuales (sonidos en reproduccion virtual) y, por seguridad, tambien se detendra el canal del playlist. Esta rutina es para usos mas tecnicos y normalmente no necesitaremos ocuparla.
+
+Para comprobar si un sonido actualmente esta "sonando de fondo":
+
+	if the sound of Beep is playing in the background...
+	if the sound of Beep is not playing in the background...
+
+
+Que un sonido este "sonando de fondo" quiere decir que "dicho sonido actualmente esta en reproduccion con repeticiones infinitas". Las dos frases anteriores son muy utiles, por ejemplo, para comprobar si en un momento determinado esta sonando alguna musica de fondo en nuestro juego. Imaginemos, por ejemplo, que queremos programar una regla que toque la musica que le digamos, pero que solamente inicie su reproduccion si no esta "sonando de fondo" ya. Es decir, nuestra regla tocara la musica de fondo solamente si aun no esta sonando. Es una forma simple para conseguir, por ejemplo, una regla que se encargue de cambiar la musica en distintas localidades, y que no produzca el desagradable efecto de "re-lanzar" la musica en distintas localidades incluso si ya esta sonando actualmente aquella misma musica. Veamos como seria la regla:
+
+	*: To background music play (SND - sound-name):
+		if SND is not playing in the background:
+			assign SND to channel 0, endless loop;
+			dplay SND.
+
+Podemos darnos cuenta de que la musica de la localidad "solo comenzara a tocarse si no esta sonando todavia". Si actualmente ya esta en reproduccion, no se intentara volverla a tocar. =)
+
+
+Section: Efectos de FadeIn y FadeOut en "tiempo-real" (fades complejos)
+
+Damusix es capaz de realizar estos efectos a cualquier sonido gestionado que este actualmente en reproduccion. Un efecto de FadeIn subira gradualmente el volumen de un sonido desde su valor actual hasta llegar a un maximo de volumen determinado, mientras que un efecto de FadeOut bajara gradualmente el volumen de un sonido desde su valor actual hasta llegar a un minimo de volumen determinado.
+
+Como estos efectos son de "tiempo-real", el juego continuara su ejecucion mientras el efecto de Fade se esta llevando a cabo, y el jugador podra seguir introduciendo ordenes y avanzando en el juego.
+
+Los efectos de Fade en "tiempo-real" funcionan perfectamente, incluso si el jugador utiliza los comandos UNDO/RESTORE/RESTART. Si se guarda la partida mientras un Fade esta en progreso, su estado actual tambien sera guardado; entonces cuando el jugador cargue esa partida, el efecto de Fade sera continuado correctamente desde el punto en que habia quedado cuando se guardo la partida. Esto funciona igualmente en el caso de usar el comando UNDO.
+
+El unico comportamiento extranyo puede darse si se aplica un Fade en "tiempo-real" a un sonido que actualmente no esta "sonando de fondo" (es decir, en reproduccion sin repeticiones infinitas). En tal caso, el Fade sera intencionalmente no recuperado, porque luego de un UNDO/RESTORE Damusix jamas re-lanza sonidos que no esten "sonando de fondo" (esto tiene mucho sentido, puesto que no es correcto volver a reproducir todos los sonidos que simplemente se debian tocar un sola vez y ya). Por lo anterior, se recomienda no aplicar un efecto de Fade a sonidos que no estan "sonando de fondo".
+
+Con independencia de lo anterior, los efectos de Fade en "tiempo-real" funcionan perfectamente y estan exhaustivamente testeados. Podemos usarlos sin temor de colgar el juego ni de provocar errores irrecuperables. Ante cualquier situacion imprevista, el Fade sera abortado por el kernel de Damusix. =D
+
+Antes de usar los efectos de Fade en "tiempo-real" debemos dejar dos asuntos muy en claro: 1) solo se puede realizar 1 efecto de Fade por vez; 2) el interprete Glulx en el que se este ejecutando el juego debe tener soporte de tiempo real (soporte para el Timer Glk). Si el interprete no es capaz de manejar el Timer Glk, los efectos de Fade no se realizaran. No se provocara ningun error en el juego, pues Damusix anticipa una situacion de este tipo. En lugar de ocurrir un error, el efecto simplemente no se producira, es todo.
+
+Vamos a ver como se usa la frase de FadeIn en "tiempo-real":
+
+	fade in the sound of Beep to 50% volume over 5000 ms
+	fade in the sound of Beep to global volume over 5000 ms
+
+	... la segunda forma podemos escribirla mas corta, omitiendo "global volume" (se usara de todas formas)...
+	fade in the sound of Beep over 5000 ms
+
+En la frase, podemos indicar un volumen final arbitrario (frase 1) o podemos usar el volumen global actual (frase 2 y 3 del ejemplo). El tiempo minimo de duracion para un efecto de Fade en "tiempo-real" es de 100 ms (en el ejemplo, durara 5 segundos).
+
+Para hacer un FadeOut, las frases son muy parecidas y usan los mismos datos:
+
+	fade out the sound of Beep to 25% volume over 5000 ms
+	fade out the sound of Beep to 0% volume over 5000 ms
+
+	... la segunda forma podemos escribirla mas corta, omitiendo "to 0%" (se usara de todas formas)...
+	fade out the sound of Beep over 5000 ms
+
+Los efecto de "tiempo-real" solo funcionaran correctamente con sonidos GESTIONADOS y que esten actualmente EN REPRODUCCION. Por ejemplo:
+
+	dplay the sound of Beep;
+	fade out the sound of Beep over 5000 ms;
+
+De vez en cuando necesitaremos que un sonido se toque luego de un efecto de FadeOut en "tiempo-real", si su volumen final llega a 0% (es decir, bajamos el volumen del primer sonido hasta el silencio y luego queremos que se lance la reproduccion de un segundo sonido). Para este objetivo, podemos usar una frase de FadeOut un poco mas compleja:
+
+	fade out the sound of Intro over 3000 ms and then dplay the sound of Melody
+	fade out the sound of Intro over 3000 ms and then dplay the sound of Melody, notifying when finished
+
+... en este caso, lo agregado a la frase es "and then dplay" en adelante. Cuando el efecto de FadeOut termine (en este caso, cuando el volumen final del sonido llegue a 0%), entonces se tocara "sound of Melody". Como este sonido se reproduce normalmente, tambien podemos opcionalmente indicarle que genere notificaciones, al igual que como lo hariamos con la frase "dplay". =)
+
+Vamos a conocer ahora dos rutinas que nos resultaran realmente utiles cuando usemos los Fades en "tiempo-real" de Damusix...
+
+Los efectos de Fade en "tiempo-real" ab-usan (jeje! =P) del Timer Glk. Lo ocupan de manera exhaustiva y fallaran, por supuesto, si el Timer es reprogramado por algun codigo externo a Damusix mientras el efecto aun esta en progreso. Existen cientos de extensiones/librerias que usan el Timer para sus propios fines; hasta la propia libreria Inform proporciona rutinas que trabajan con el Timer para un uso privado. Incluso el mismo programador puede reprogramar el Timer en el codigo del juego. Como es evidente, Damusix no puede prever todas estas situaciones, pero si facilita un metodo para "controlarlas"...
+
+	if fading is in progress...
+	if fading is not in progress...
+
+... estas dos frases de consulta que comprueban si actualmente esta en proceso un efecto de Fade en "tiempo-real".Esto nos resultara util cuando queramos que cierto codigo se ejecute o no, dependiendo de si esta en proceso un Fade en "tiempo-real". Si tenemos un codigo que reprograma el Timer Glk, lo mejor sera hacer una comprobacion con esta frase de consulta para saber si hay o no un Fade activo en ese momento y si podemos ejecutar el codigo implicado sin riesgo de estropear nuestro Fade.
+
+Por otro lado...
+
+	abort the fading
+
+... abortara cualquier efecto de Fade en "tiempo-real" que pudiera estar en proceso. Si se aborta un FadeIn, el sonido seguira en reproduccion y se le aplicara el volumen final indicado cuando se lanzo el efecto. Si se aborta un FadeOut, existen dos posible comportamientos: 1) si el volumen final es mayor a 0%, entonces simplemente se le aplicara al sonido dicho volumen final y finalmente se terminara el Fade; 2) si el volumen final es igual a 0%, entonces se detendra el sonido, luego se le aplicara un volumen final igual al volumen que tenia originalmente antes de realizar el efecto y finalmente se terminara el Fade. Si no hay ningun efecto de Fade al momento, esta frase simplemente no hara nada.
+
+	NOTA: Las funciones del Gestor de Damusix son "inteligentes" y si se aplican a cualquier sonido que tenga activo un Fade en "tiempo-real", primero abortaran dicho efecto si lo consideran apropiado y luego seguiran su ejecucion normal.
+
+
+Section: Efectos de FadeIn y FadeOut en "tiempo-no-real" (fades simples) [NOTA AARON: "non-real-time"]
+
+Damusix proporciona una alternativa a los Fades en "tiempo-real", que podemos usar si no queremos liarnos coordinando el Timer Glk de nuestro propio codigo temporizado con el de los efectos de Fade en "tiempo-real" de Damusix. Asi evitamos tener que hacer comprobaciones como "if fading is in progress" para averiguar si hay un Fade en "tiempo-real" activo y, en consecuencia, impedir que se ejecute algun codigo que reprograme el Timer y "mate" dicho efecto.
+
+Esta "alternativa" son los Fades en "tiempo-no-real" y son mucho mas simples y sencillos de usar que los en "tiempo-real" explicados anteriormente.
+
+Un Fade en "tiempo-no-real" primero realiza el efecto y solo cuando ha terminado devuelve el control de la ejecucion a la siguiente linea en el codigo fuente. Por este motivo su uso sera mas practico con tiempos de duracion muy reducidos. De hecho, estos Fades pueden tener tiempos de duracion inferiores a los 100 milisegundos, lo cual es ideal para producir transiciones bonitas y elegantes entre distintos sonidos.
+
+Como estos efectos de Fade no son en "tiempo-real", no pueden ser abortados. Tampoco es necesario tener la posibilidad de comprobar si estan activos (no tiene sentido en este caso). Simplemente se limitan a dos frases elementales, que se ocupan exactamente igual que las de los Fades en "tiempo-real" y funcionan exactamente igual. Estas dos frases (y sus variantes) son las siguientes:
+
+	Para hacer un SimpleFadeIn:
+
+	... si indicamos un volumen final explicito...
+	simple fade in the sound of Beep to 75% volume over 5000 ms
+
+	... si queremos usar el "volumen global"...
+	simple fade in the sound of Beep to global volume over 5000 ms
+
+	... esta ultima forma podemos escribirla incluso mas corta...
+	simple fade in the sound of Beep over 5000 ms
+
+	Y para hacer un SimpleFadeOut:
+
+	... si indicamos un volumen final explicito...
+	simple fade out the sound of Beep to 25% volume over 5000 ms
+
+	... si queremos bajar el volumen hasta el silencio (0%)...
+	simple fade out the sound of Beep to 0% volume over 5000 ms
+
+	... esta ultima forma podemos escribirla incluso mas corta...
+	simple fade out the sound of Beep over 5000 ms
+
+Como se ha dicho, estas frases funcionan exactamente igual que sus homologas en "tiempo-real". La unica salvedad es para el efecto de SimpleFadeOut, que por ser en "tiempo-no-real" no requiere tener argumentos para tocar un sonido Post-FadeOut ni tampoco detiene la reproduccion del sonido si el volumen final indicado es igual a 0%. Como la ejecucion del codigo continuara en la siguiente linea una vez que el efecto de SimpleFadeOut acabe, podemos detener nosotros mismos el sonido que tiene 0% de volumen si lo consideramos apropiado o podemos lanzar la reproduccion de otro sonido, etcetera.
+
+Vamos a ver un ejemplo de utilizacion de estos Fades "simples"...
+
+	*: assign the sound of Melody to channel 0 with 100% volume, endless loop;
+
+	say "Making SimpleFadeOut...[line break]";
+	simple fade out the sound of Melody to 50% volume over 500 ms;
+
+	say "Making SimpleFadeIn...[line break]";
+	simple fade in the sound of Melody to 100% volume over 500 ms;
+
+	say "Making SimpleFadeOut...[line break]";
+	simple fade out the sound of Melody to 0% volume over 1000 ms;
+
+	say "Stopping the Music...[line break]";
+	dstop the sound of Melody;
+
+El codigo anterior es un sencillo ejemplo. Primero se asigna "sound of Melody" con un volumen del 100%; luego se le aplica un SimpleFadeOut de medio segundo con un "volumen final" de 50% (es decir, bajara el volumen desde 100% hasta 50%); cuando acaba, se le aplica un SimpleFadeIn de medio segundo con un "volumen final" del 100% (es decir, subira el volumen desde 50% hasta 100%); cuando el efecto anterior termina, se le aplica ahora un SimpleFadeOut de 1 segundo con un "volumen final" del 0% (es decir, bajara el volumen desde 100% hasta 0%); finalmente, como el sonido tiene ahora 0% de volumen, detenemos su reproduccion (de otra manera seguiria sonando, sin que pudieramos escucharlo).
+
+
+Section: Funciones Tecnicas y Funciones de Informacion del Audio
+
+El Gestor de Damusix facilita varias frases mas, aparte de las ya descritas, bastante utiles en situaciones de programacion mas avanzada.
+
+Por un lado tenemos las frases agrupadas en las llamadas "Funciones Tecnicas". Estas frases realizan las mismas funcionalidades que las frases que trabajan con los canales normales de Damusix, pero no usan la "abstraccion por sonidos". En lugar de indicar el sonido con el que deseamos trabajar, tendremos que indicar el "numero del canal" en el que nos interesa que se realice el trabajo. Por convencion, estas rutinas se escriben de las misma forma que sus homologas "no-tecnicas", pero en vez de indicar un "sound" debera especificarse un "channel".
+
+Asi, para la frase "dplay the sound of Beep" tenemos su homologa tecnica "dplay channel 1", por ejemplo. A la primera le indicaremos el sonido que queremos reproducir mientras que a la segunda, el numero del canal que deseamos que comience a tocar.
+
+Hay tantas funciones tecnicas como no-tecnicas tiene el Gestor de Damusix. No se explicaran aqui. En las "frases de Damusix" en la pagina "Index>Phrases" se lista cada una de estas.
+
+Por otro lado tenemos las frases agrupadas en las llamadas "Funciones de Informacion del Audio". Estas frases simplemente "consultan/averiguan" algun dato sobre el estado del Gestor de Damusix y devuelven un valor en consecuencia.
+
+Por ejemplo, hay una frase de consulta para averiguar el volumen actual de un sonido: "the volume of the sound of Beep". Algunas frases de consulta tambien tienen equivalentes "tecnicas". Por ejemplo, para la frase anterior existe la homologa tecnica "the volume of channel 1". Jeje! =P
+
+Las funciones de informacion del audio no se explicaran aqui. Nuevamente, en las "frases de Damusix" en la pagina "Index>Phrases" se lista cada una de estas.
+
+	NOTA ESPECIAL SOBRE LAS REPETICIONES: Si consultamos la cantidad de repeticiones de un sonido (por ejemplo, con la frase "the repetition count of the Sound of Beep") y el sonido tiene repeticiones infinitas, el valor devuelto por la consulta siempre sera "-1". Tenga presente el programador este hecho.
+
+
+Section: Mecanismo de "Proteccion de Sonidos" ante UNDO/RESTORE
+
+Damusix incluye "de fabrica" un novedoso mecanismo de "proteccion de sonidos" ante los comandos UNDO/RESTORE. Por motivos tecnicos de Glulx, siempre es necesario recuperar las referencias de los canales de audio Glk cuando el estado del juego cambia de alguna forma. Este cambio puede producirse, justamente, cuando el jugador usa los comandos UNDO/RESTORE/RESTART. La recuperacion de las referencias de los canales de audio implica que es necesario siempre actualizar la reproduccion en dichos canales, porque de otro modo estos podrian seguir sonando sin ningun control o podrian no reproducir los sonidos que corresponden con el nuevo estado del juego; siendo todas estas, circunstancias no deseadas e irregulares. Por ejemplo, si grabamos una partida en la que estaba sonando una musica de fondo, al cargarla en otro momento deberia siempre "re-lanzarse" la reproduccion de esa musica de fondo. Lo mismo pasa ante UNDO.
+
+Este es el comportamiento deseado normalmente, pero no el ideal. Imaginemos que estamos jugando con cierta musica "sonando de fondo" y luego hacemos UNDO. La musica volvera a ser lanzada, desde el principio, aunque sea exactamente la misma que se estaba tocando antes del UNDO. Si hacemos UNDO muchas veces seguidas, este comportamiento "natural" podria llegar a ser muy molesto. Si la musica actual es la misma que la musica que estaba sonando cuando se grabo la partida, de todas formas se "volvera a tocar" desde el principio, produciendo el mismo feo efecto.
+
+Damusix es la primera extension para el manejo de audio en Glulx que incorpora un mecanismo para evitar este "comportamiento natural" al cambiar los estados del juego. El Gestor de Damusix implementa un complejo sistema de comprobaciones para determinar si es preciso "re-lanzar" un sonido que estuviera "sonando de fondo" al momento de hacer UNDO o al recuperar una partida previamente grabada. Si el nuevo sonido que esta "sonando de fondo" actualmente es el mismo que el sonido que estaba "sonando de fondo previo al cambio de estado, entonces no es necesario volver a lanzar la musica porque es evidente que "ya esta sonando de fondo". ("Sonando de fondo" quiere decir para Damusix un sonido que ya esta en reproduccion con repeticiones infinitas.)
+
+El mecanismo de "proteccion de sonidos" utiliza para sus propositos la llamada especial en ensamblador de Glulx: @protect. Esta llamada funciona correctamente en interpretes que cumplan con el estandar COMPLETO de la maquina virtual Glulx. En este sentido, el mecanismo de "proteccion de sonidos" de Damusix funciona perfectamente en cualquier implementacion del interprete Glulxe (sea Windows Glulxe o la version de Glulxe de Gargoyle; tambien va muy bien en ZAG para Java y posiblemente en Spatterlight para el sistema MacOSX). Pero en interpretes con implementaciones "pobres" o, por el contrario, con funcionalidades especializadas, es posible que el mecanismo falle. Por ejemplo, GIT es un interprete de Glulx muy rapido, pero que gana esa rapidez a costa de no implementar algunas funcionalidades del estandar de Glulx que no se usan en las aventuras compiladas con Inform. Al parecer, la llamada a @protect no funciona muy bien en GIT, por lo que la "proteccion de sonidos" de Damusix produce comportamientos inestables y hasta caidas y cuelgues irrecuperables en aquel interprete.
+
+En estos casos especiales, si quisieramos que Damusix se ejecutara en interpretes "no muy buenos" o con implementaciones especializadas (como GIT) existe una frase de compilacion condicional para que la extension compile sin usar el mecanismo de "proteccion de sonidos". En este caso, los sonidos siempre seran recuperados correctamente ante UNDO/RESTORE, pero ya no sera comprobado si estan actualmente "sonando de fondo", por lo que todo sonido recuperado siempre sera "re-lanzado" (el comportamiento tradicional).
+
+La frase es la siguiente:
+
+	Use no sound protection.
+
+Con esto ya no se ocupara el mecanismo de "proteccion de sonidos" de Damusix. Con todo, se invita a los autores a no prescindir de este mecanismo. Asi podremos de alguna manera "animar amablemente" a los programadores de interpretes a ir mejorando estos cada vez mas y a incorporar las funcionalidades del estandar de Glulx que sus interpretes todavia no soportan. (Un poquito de "presion amigable", jejeje! =D)
+
+
+Section: Epilogo
+
+	Si has llegado hasta aqui, terminaste con exito la audaz y laboriosa aventura de leer completamente esta extensa documentacion.
+
+	*** Has Ganado *** =D Jejeje!
+
+Eso es todo. Ahora tener sonido en tu juego en Glulx no podria ser mas simple!
